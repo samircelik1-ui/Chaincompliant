@@ -196,11 +196,9 @@
   .result-status { color: var(--amber); font-weight: 600; }
 
   @media (max-width: 860px) {
-    /* Menu visibile su mobile */
     .nav { flex-direction: column; gap: 16px; padding: 12px 0; }
     nav ul { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
     nav ul li a { font-size: 12px; }
-    
     h1.headline { font-size: 36px; }
     .about-grid, .contact-grid, .feature-grid, .steps, .foot-grid { grid-template-columns: 1fr; }
     section { padding: 64px 0; }
@@ -457,7 +455,7 @@
   }
 
   // Inizializzazione al caricamento della pagina
-  window.addEventListener('load', async () => {
+  document.addEventListener('DOMContentLoaded', async function() {
     const params = new URLSearchParams(window.location.search);
     const isAuto = params.get('auto') === '1';
     
@@ -477,7 +475,6 @@
         openVerifyModal();
       } catch (e) { 
         console.error("Connect error:", e);
-        alert("Failed to connect wallet. Please try again.");
       }
     }
     
