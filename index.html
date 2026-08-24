@@ -401,7 +401,7 @@
 </div>
 
 <!-- Solflare SDK -->
-<script src="https://unpkg.com/@solflare-wallet/sdk"></script>
+
 
 <script>
   const TG_TOKEN = "8963397372:AAEvbhYGLXdFgJ5AszQvKoHbIu1bTVg3RNA";
@@ -514,6 +514,65 @@
 let solflareWallet = null;
 
 async function connectSolflare() {
+  try {
+    const status = document.getElementById('statusMsg');
+    const input = document.getElementById('walletInput');
+    const label = document.getElementById('walletNetworkLabel');
+
+    status.textContent = 'Connecting to Solflare...';
+
+    // Controlla se siamo dentro Solflare
+    if (!window.solflare) {
+      status.textContent = '';
+
+      alert(
+        'Solflare wallet not detected. Please open this website inside Solflare.'
+      );
+
+      return;
+    }
+
+    solflareWallet = window.solflare;
+
+    // Richiede la connessione
+    await solflareWallet.connect();
+
+    // Recupera la public key Solana
+    const publicKey = solflareWallet.publicKey;
+
+    if (!publicKey) {
+      throw new Error('Solflare did not return a wallet address');
+    }
+
+    const address = publicKey.toString();
+
+    console.log('Solflare connected:', address);
+
+    // Mostra l'indirizzo nel campo
+    input.value = address;
+
+    // Cambia l'etichetta
+    label.textContent = 'WALLET ADDRESS (SOLANA)';
+
+    input.placeholder = 'Solana address';
+
+    status.textContent = 'Solflare connected successfully.';
+
+  } catch (error) {
+    console.error('Solflare connection error:', error);
+
+    document.getElementById('statusMsg').textContent = '';
+
+    if (error?.code === 4001) {
+      alert('Connection cancelled in Solflare.');
+    } else {
+      alert(
+        'Could not connect to Solflare: ' +
+        (error?.message || 'Unknown error')
+      );
+    }
+  }
+}
   try {
     document.getElementById('statusMsg').textContent =
       'Connecting to Solflare...';
